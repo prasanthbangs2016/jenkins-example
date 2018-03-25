@@ -1,32 +1,19 @@
-pipeline {
-    agent any
+node{
+  stage ('Build') {
 
-    stages {
-        stage ('Compile Stage') {
+    git url: 'https://github.com/prasanthbangs2016/jenkins-example'
 
-            steps {
-                withMaven(maven : 'maven_3_5_0') {
-                    sh 'mvn clean compile'
-                }
-            }
-        }
+    withMaven(
+        // Maven installation declared in the Jenkins "Global Tool Configuration"
+        maven: 'M3',
+        // Maven settings.xml file defined with the Jenkins Config File Provider Plugin
+        // Maven settings and global settings can also be defined in Jenkins Global Tools Configuration
+        mavenSettingsConfig: 'my-maven-settings',
+        mavenLocalRepo: '.repository') {
 
-        stage ('Testing Stage') {
+      // Run the maven build
+      sh "mvn clean install"
 
-            steps {
-                withMaven(maven : 'maven_3_5_0') {
-                    sh 'mvn test'
-                }
-            }
-        }
-
-
-        stage ('Deployment Stage') {
-            steps {
-                withMaven(maven : 'maven_3_5_0') {
-                    sh 'mvn deploy'
-                }
-            }
-        }
-    }
+    } // withMaven will discover the generated Maven artifacts, JUnit Surefire & FailSafe & FindBugs reports...
+  }
 }
